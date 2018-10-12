@@ -57,9 +57,9 @@ public class mecanum_diy extends LinearOpMode {
     double xSpeed = 0.4;
     double ySpeed = 0.4;
     double rotateSpeed = 0.2;
-    double extMotorFrontSpeedSlow = 0.1;
-
-    double extMotorBackSpeed = 0.25;
+    double extMotorFrontSpeedSlow = 0.3;
+    double getExtMotorFrontSpeedFast = 0.45;
+    double extMotorBackSpeed = 0.3;
     float forward = 1;
     float backward = -1;
     @Override
@@ -81,15 +81,15 @@ public class mecanum_diy extends LinearOpMode {
 
             xValue = gamepad1.right_stick_x;
             yValue = gamepad1.left_stick_y;
-            boolean extensionFrontPowerOn = gamepad1.dpad_left;
-            boolean extensionFrontPowerOff= gamepad1.dpad_right;
-            boolean extensionBackPowerOn = gamepad1.dpad_up;
-            boolean extensionBackPowerOff= gamepad1.dpad_down;
+            boolean extensionFrontForward = gamepad1.dpad_left;
+            boolean extensionFrontBackward= gamepad1.dpad_right;
+            boolean extensionBackForward = gamepad1.dpad_up;
+            boolean extensionBackBackward= gamepad1.dpad_down;
 
-            telemetry.addData("dpad left:",extensionFrontPowerOn);
-            telemetry.addData("dpad right:",extensionFrontPowerOff);
-            telemetry.addData("dpad up:",extensionBackPowerOn);
-            telemetry.addData("dpad down:",extensionBackPowerOff);
+            telemetry.addData("dpad left:",extensionFrontForward);
+            telemetry.addData("dpad right:",extensionFrontBackward);
+            telemetry.addData("dpad up:",extensionBackForward);
+            telemetry.addData("dpad down:",extensionBackBackward);
 
             //normalizare
             if (xValue > 1.0) xValue=1.0;
@@ -104,15 +104,23 @@ public class mecanum_diy extends LinearOpMode {
             else
                 mecanumDrive_Rotate(rotationLeft,rotationRight);
 
-            if( extensionBackPowerOn == false && extensionBackPowerOff ==false) {
+            if( extensionBackForward == false && extensionBackBackward == false) {
                 robot.extensionMotorBack.setPower(0);
             }
             else {
-                if(extensionBackPowerOn==true)
-                        powerExtensionMotorBack(forward);
+                if(extensionBackForward == true)
+                    powerExtensionMotorBack(forward);
                 else powerExtensionMotorBack(backward);
             }
 
+            if( extensionFrontForward == false && extensionFrontBackward == false){
+                robot.extensionMotorFront.setPower(0);
+            }
+            else {
+                if(extensionFrontForward == true)
+                    powerExtensionMotorFront(forward,extMotorFrontSpeedSlow);
+                else powerExtensionMotorFront(backward,getExtMotorFrontSpeedFast);
+            }
             // Send telemetry message to signify robot running;
             telemetry.addData("x",  "%.2f", xValue);
             telemetry.addData("y", "%.2f", yValue);
@@ -120,29 +128,21 @@ public class mecanum_diy extends LinearOpMode {
 
         }
     }
+
     public void powerExtensionMotorBack(float direction)
     {
         robot.extensionMotorBack.setPower(extMotorBackSpeed*direction);
     }
 
-    public void mecanumDrive_ExtensionLand(boolean on, boolean off)
-   {
-        if(on){
-            robot.extensionMotorFront.setPower(extMotorFrontSpeed);
-        }
-        else if(off){
-            robot.extensionMotorFront.setPower(-extMotorFrontSpeed);
-        }
-
-        if(!on && !off){
-            robot.extensionMotorFront.setPower(0);
-        }
+    public void powerExtensionMotorFront(float direction, double speed)
+    {
+        robot.extensionMotorFront.setPower(speed*direction);
     }
 
     public void mecanumDrive_Cartesian(double x, double y)
     {
         if(x!=0) {
-            double aux = x > 0 ? -xSpeed : xSpeed;
+            double aux = x > 0 ? xSpeed : -xSpeed;
             robot.leftDrive.setPower(aux);
             robot.rightDrive.setPower(-aux);
             robot.leftDriveBack.setPower(-aux);
@@ -151,7 +151,7 @@ public class mecanum_diy extends LinearOpMode {
 
         else if(y!=0) {
 
-            double aux = y > 0 ? ySpeed : -ySpeed;
+            double aux = y > 0 ? -ySpeed : ySpeed;
             robot.leftDrive.setPower(aux);
             robot.rightDrive.setPower(aux);
             robot.leftDriveBack.setPower(aux);
