@@ -58,6 +58,8 @@ public class HardwareMap
     public DcMotor  leftDriveBack = null;
     public DcMotor  rightDriveBack = null;
 
+    public DcMotor  extensionMotorFront =null;
+    public DcMotor  extensionMotorBack =null;
     /* local OpMode members. */
     com.qualcomm.robotcore.hardware.HardwareMap hwMap           =  null;
     private ElapsedTime period  = new ElapsedTime();
@@ -77,16 +79,22 @@ public class HardwareMap
         rightDrive = hwMap.get(DcMotor.class, "right_drive");
         leftDriveBack  = hwMap.get(DcMotor.class, "left_drive_back");
         rightDriveBack = hwMap.get(DcMotor.class, "right_drive_back");
+        extensionMotorFront = hwMap.get(DcMotor.class, "extension_motor_front");
+        extensionMotorBack = hwMap.get(DcMotor.class, "extension_motor_back");
         leftDrive.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
         leftDriveBack.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
         rightDrive.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors
         rightDriveBack.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors
+        extensionMotorFront.setDirection(DcMotor.Direction.FORWARD);
+        extensionMotorBack.setDirection(DcMotor.Direction.REVERSE);
 
         // Set all motors to zero power
         leftDrive.setPower(0);
         rightDrive.setPower(0);
         leftDriveBack.setPower(0);
         rightDriveBack.setPower(0);
+        extensionMotorFront.setPower(0);
+        extensionMotorBack.setPower(0);
 
 
         // Set all motors to run without encoders.
@@ -95,6 +103,8 @@ public class HardwareMap
         rightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         leftDriveBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightDriveBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        extensionMotorFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        extensionMotorBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         // Define and initialize ALL installed servos.
 
