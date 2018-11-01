@@ -29,6 +29,8 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -60,6 +62,12 @@ public class HardwareMap
 
     public DcMotor  extensionMotorFront =null;
     public DcMotor  extensionMotorBack =null;
+    public String frontMotorCurrentState = "up";
+    public boolean changeInProgress=false;
+    public float extensionMotorFront_forwardSpeed= 0.2f;
+    public float extensionMotorFront_backSpeed= -0.6f;
+
+
     /* local OpMode members. */
     com.qualcomm.robotcore.hardware.HardwareMap hwMap           =  null;
     private ElapsedTime period  = new ElapsedTime();
@@ -85,8 +93,10 @@ public class HardwareMap
         leftDriveBack.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
         rightDrive.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors
         rightDriveBack.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors
-        extensionMotorFront.setDirection(DcMotor.Direction.FORWARD);
+        extensionMotorFront.setDirection(DcMotor.Direction.REVERSE);
         extensionMotorBack.setDirection(DcMotor.Direction.REVERSE);
+        extensionMotorFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
 
         // Set all motors to zero power
         leftDrive.setPower(0);
@@ -107,6 +117,37 @@ public class HardwareMap
         extensionMotorBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         // Define and initialize ALL installed servos.
+
+    }
+
+    public void changeFrontMotorState(LinearOpMode opMode)
+    {
+        //daca nu se schimba deja state-ul motorului
+        if(changeInProgress==false)
+        {
+            //anunta ca e in schimbare
+            changeInProgress=true;
+
+            //daca ii urcat, coboara-l
+            if(frontMotorCurrentState=="up")
+            {
+                extensionMotorFront.setPower(extensionMotorFront_forwardSpeed);
+                opMode.sleep(1000);
+                extensionMotorFront.setPower(0);
+                frontMotorCurrentState="down";
+
+
+            }
+            else
+            {
+                //daca e coborat, urca-l
+                extensionMotorFront.setPower(extensionMotorFront_backSpeed);
+                opMode.sleep(1000);
+                extensionMotorFront.setPower(0);
+                frontMotorCurrentState="up";
+            }
+            changeInProgress = false;
+        }
 
     }
  }

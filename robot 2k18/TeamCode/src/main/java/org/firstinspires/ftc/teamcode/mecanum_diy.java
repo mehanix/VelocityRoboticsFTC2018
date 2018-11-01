@@ -58,8 +58,8 @@ public class mecanum_diy extends LinearOpMode {
     double ySpeed = 0.4;
     double rotateSpeed = 0.2;
     double extMotorFrontSpeedSlow = 0.3;
-    double getExtMotorFrontSpeedFast = 0.45;
-    double extMotorBackSpeed = 0.3;
+    double getExtMotorFrontSpeedFast = 0.6;
+    double extMotorBackSpeed = 0.4;
     float forward = 1;
     float backward = -1;
     @Override
@@ -121,6 +121,9 @@ public class mecanum_diy extends LinearOpMode {
                     powerExtensionMotorFront(forward,extMotorFrontSpeedSlow);
                 else powerExtensionMotorFront(backward,getExtMotorFrontSpeedFast);
             }
+
+            if(gamepad1.a == true)
+                robot.changeFrontMotorState(this);
             // Send telemetry message to signify robot running;
             telemetry.addData("x",  "%.2f", xValue);
             telemetry.addData("y", "%.2f", yValue);
