@@ -124,6 +124,14 @@ public class mecanum_diy extends LinearOpMode {
 
             if(gamepad1.a == true)
                 robot.changeFrontMotorState(this);
+
+            if(gamepad1.b == true)
+                robot.changeFlappersRotation(this);
+            if(gamepad1.x == true)
+            {
+                robot.powerFlappers(this);
+            }
+
             // Send telemetry message to signify robot running;
             telemetry.addData("x",  "%.2f", xValue);
             telemetry.addData("y", "%.2f", yValue);

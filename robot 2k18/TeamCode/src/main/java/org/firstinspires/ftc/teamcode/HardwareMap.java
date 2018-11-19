@@ -64,9 +64,14 @@ public class HardwareMap
     public DcMotor  extensionMotorBack =null;
     public String frontMotorCurrentState = "up";
     public boolean changeInProgress=false;
-    public float extensionMotorFront_forwardSpeed= 0.2f;
-    public float extensionMotorFront_backSpeed= -0.6f;
+    public float extensionMotorFront_forwardSpeed= 0.4f;
+    public float extensionMotorFront_backSpeed= -0.5f;
 
+    public DcMotor constantflappers = null;
+    public String flappersState = "take";
+    double flappers_speed_take= 0.5f;
+    double flappers_speed_give= -0.5f;
+    String flappersPower = "off";
 
     /* local OpMode members. */
     com.qualcomm.robotcore.hardware.HardwareMap hwMap           =  null;
@@ -89,6 +94,8 @@ public class HardwareMap
         rightDriveBack = hwMap.get(DcMotor.class, "right_drive_back");
         extensionMotorFront = hwMap.get(DcMotor.class, "extension_motor_front");
         extensionMotorBack = hwMap.get(DcMotor.class, "extension_motor_back");
+        constantflappers = hwMap.get(DcMotor.class, "constant_flappers");
+
         leftDrive.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
         leftDriveBack.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
         rightDrive.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors
@@ -96,7 +103,8 @@ public class HardwareMap
         extensionMotorFront.setDirection(DcMotor.Direction.REVERSE);
         extensionMotorBack.setDirection(DcMotor.Direction.REVERSE);
         extensionMotorFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
+        constantflappers.setDirection(DcMotor.Direction.FORWARD);
+        constantflappers.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Set all motors to zero power
         leftDrive.setPower(0);
@@ -119,6 +127,38 @@ public class HardwareMap
         // Define and initialize ALL installed servos.
 
     }
+    public void changeFlappersRotation(LinearOpMode opMode)
+    {
+        if(flappersState=="take")
+            flappersState="give";
+            else
+            flappersState="take";
+        opMode.sleep(100);
+        if(flappersPower == "on")
+        {
+            if(flappersState=="take")
+                constantflappers.setPower(flappers_speed_take);
+            else
+                constantflappers.setPower(flappers_speed_give);
+        }
+    }
+
+    public void powerFlappers(LinearOpMode opMode)
+    {
+        if(flappersPower == "off")
+        {
+            flappersPower = "on";
+            if(flappersState=="take")
+                constantflappers.setPower(flappers_speed_take);
+                else
+                constantflappers.setPower(flappers_speed_give);
+        }
+        else
+        {
+            flappersPower = "off";
+            constantflappers.setPower(0);
+        }
+    }
 
     public void changeFrontMotorState(LinearOpMode opMode)
     {
@@ -132,7 +172,7 @@ public class HardwareMap
             if(frontMotorCurrentState=="up")
             {
                 extensionMotorFront.setPower(extensionMotorFront_forwardSpeed);
-                opMode.sleep(1000);
+                opMode.sleep(7000);
                 extensionMotorFront.setPower(0);
                 frontMotorCurrentState="down";
 
@@ -142,7 +182,7 @@ public class HardwareMap
             {
                 //daca e coborat, urca-l
                 extensionMotorFront.setPower(extensionMotorFront_backSpeed);
-                opMode.sleep(1000);
+                opMode.sleep(7000);
                 extensionMotorFront.setPower(0);
                 frontMotorCurrentState="up";
             }
