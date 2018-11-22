@@ -64,7 +64,7 @@ public class HardwareMap
     public DcMotor  extensionMotorBack =null;
     public String frontMotorCurrentState = "up";
     public boolean changeInProgress=false;
-    public float extensionMotorFront_forwardSpeed= 0.4f;
+    public float extensionMotorFront_forwardSpeed= 0.3f;
     public float extensionMotorFront_backSpeed= -0.5f;
 
     public DcMotor constantflappers = null;
@@ -73,6 +73,12 @@ public class HardwareMap
     double flappers_speed_give= -0.5f;
     String flappersPower = "off";
 
+    public DcMotor lift = null;
+
+    public Servo ArmL = null;
+    public final static double arm_down = 1.0;
+    public final static double arm_up = 0.0;
+    public String armsState = "down";
     /* local OpMode members. */
     com.qualcomm.robotcore.hardware.HardwareMap hwMap           =  null;
     private ElapsedTime period  = new ElapsedTime();
@@ -95,6 +101,8 @@ public class HardwareMap
         extensionMotorFront = hwMap.get(DcMotor.class, "extension_motor_front");
         extensionMotorBack = hwMap.get(DcMotor.class, "extension_motor_back");
         constantflappers = hwMap.get(DcMotor.class, "constant_flappers");
+        lift = hwMap.get(DcMotor.class, "lift");
+        ArmL = hwMap.get(Servo.class, "ArmL");
 
         leftDrive.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
         leftDriveBack.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
@@ -105,6 +113,8 @@ public class HardwareMap
         extensionMotorFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         constantflappers.setDirection(DcMotor.Direction.FORWARD);
         constantflappers.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        lift.setDirection(DcMotor.Direction.REVERSE);
+        lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Set all motors to zero power
         leftDrive.setPower(0);
@@ -113,7 +123,9 @@ public class HardwareMap
         rightDriveBack.setPower(0);
         extensionMotorFront.setPower(0);
         extensionMotorBack.setPower(0);
-
+        constantflappers.setPower(0);
+        lift.setPower(0);
+        ArmL.setPosition(arm_down);
 
         // Set all motors to run without encoders.
         // May want to use RUN_USING_ENCODERS if encoders are installed.
@@ -123,17 +135,19 @@ public class HardwareMap
         rightDriveBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         extensionMotorFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         extensionMotorBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
+        constantflappers.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        lift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         // Define and initialize ALL installed servos.
 
     }
+
     public void changeFlappersRotation(LinearOpMode opMode)
     {
         if(flappersState=="take")
             flappersState="give";
             else
             flappersState="take";
-        opMode.sleep(100);
+        opMode.sleep(200);
         if(flappersPower == "on")
         {
             if(flappersState=="take")
@@ -158,6 +172,21 @@ public class HardwareMap
             flappersPower = "off";
             constantflappers.setPower(0);
         }
+        opMode.sleep(100);
+    }
+
+    public void armMove()
+    {
+        if(armsState == "down")
+        {
+            ArmL.setPosition(arm_up);
+            armsState = "up";
+        }
+        else
+        {
+            ArmL.setPosition(arm_down);
+            armsState = "down";
+        }
     }
 
     public void changeFrontMotorState(LinearOpMode opMode)
@@ -172,7 +201,7 @@ public class HardwareMap
             if(frontMotorCurrentState=="up")
             {
                 extensionMotorFront.setPower(extensionMotorFront_forwardSpeed);
-                opMode.sleep(7000);
+                opMode.sleep(700);
                 extensionMotorFront.setPower(0);
                 frontMotorCurrentState="down";
 
@@ -182,7 +211,7 @@ public class HardwareMap
             {
                 //daca e coborat, urca-l
                 extensionMotorFront.setPower(extensionMotorFront_backSpeed);
-                opMode.sleep(7000);
+                opMode.sleep(700);
                 extensionMotorFront.setPower(0);
                 frontMotorCurrentState="up";
             }

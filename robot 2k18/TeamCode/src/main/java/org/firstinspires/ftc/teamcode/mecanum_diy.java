@@ -62,6 +62,12 @@ public class mecanum_diy extends LinearOpMode {
     double extMotorBackSpeed = 0.4;
     float forward = 1;
     float backward = -1;
+
+    double liftUpSpeed = 1;
+    double liftDownSpeed = -1;
+
+
+
     @Override
     public void runOpMode() {
 
@@ -82,14 +88,24 @@ public class mecanum_diy extends LinearOpMode {
             xValue = gamepad1.right_stick_x;
             yValue = gamepad1.left_stick_y;
             boolean extensionFrontForward = gamepad1.dpad_left;
-            boolean extensionFrontBackward= gamepad1.dpad_right;
+            boolean extensionFrontBackward = gamepad1.dpad_right;
             boolean extensionBackForward = gamepad1.dpad_up;
-            boolean extensionBackBackward= gamepad1.dpad_down;
+            boolean extensionBackBackward = gamepad1.dpad_down;
+
+            boolean liftUp = gamepad1.left_bumper;
+            boolean liftDown = gamepad1.right_bumper;
 
             telemetry.addData("dpad left:",extensionFrontForward);
             telemetry.addData("dpad right:",extensionFrontBackward);
             telemetry.addData("dpad up:",extensionBackForward);
             telemetry.addData("dpad down:",extensionBackBackward);
+
+            telemetry.addData("a button:",gamepad1.a);
+            telemetry.addData("b button:",gamepad1.b);
+            telemetry.addData("x button:",gamepad1.x);
+            telemetry.addData("left_bumper button:",gamepad1.left_bumper);
+            telemetry.addData("right_bumper button:",gamepad1.right_bumper);
+            telemetry.addData("left_stick button:",gamepad1.left_stick_button);
 
             //normalizare
             if (xValue > 1.0) xValue=1.0;
@@ -99,6 +115,7 @@ public class mecanum_diy extends LinearOpMode {
 
             double rotationLeft = gamepad1.left_trigger;
             double rotationRight = gamepad1.right_trigger;
+
             if(rotationLeft==0 && rotationRight == 0)
                 mecanumDrive_Cartesian(xValue,yValue);
             else
@@ -132,6 +149,20 @@ public class mecanum_diy extends LinearOpMode {
                 robot.powerFlappers(this);
             }
 
+            if(liftUp == true)
+                robot.lift.setPower(liftUpSpeed);
+                else
+                robot.lift.setPower(0);
+            if(liftDown == true)
+                robot.lift.setPower(liftDownSpeed);
+                else
+                robot.lift.setPower(0);
+
+            if(gamepad1.left_stick_button == true)
+            {
+                robot.armMove();
+                sleep(500);
+            }
             // Send telemetry message to signify robot running;
             telemetry.addData("x",  "%.2f", xValue);
             telemetry.addData("y", "%.2f", yValue);
