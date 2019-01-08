@@ -31,6 +31,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.Range;
 
 /**
  * This OpMode uses the common Pushbot hardware class to define the devices on the robot.
@@ -54,9 +55,9 @@ public class mecanum_diy extends LinearOpMode {
     HardwareMap robot           = new HardwareMap();   // Use a Pushbot's hardware
 
 
-    double xSpeed = 0.4;
-    double ySpeed = 0.4;
-    double rotateSpeed = 0.2;
+    double xSpeed = 0.6;
+    double ySpeed = 0.5;
+    double rotateSpeed = 0.3;
     double extMotorFrontSpeedSlow = 0.3;
     double getExtMotorFrontSpeedFast = 0.6;
     double extMotorBackSpeed = 0.4;
@@ -66,7 +67,8 @@ public class mecanum_diy extends LinearOpMode {
     double liftUpSpeed = 1;
     double liftDownSpeed = -1;
 
-
+    double ArmPosition = robot.Arm_down;
+    final double Arm_speed = 1;
 
     @Override
     public void runOpMode() {
@@ -92,20 +94,45 @@ public class mecanum_diy extends LinearOpMode {
             boolean extensionBackForward = gamepad1.dpad_up;
             boolean extensionBackBackward = gamepad1.dpad_down;
 
-            boolean liftUp = gamepad1.left_bumper;
-            boolean liftDown = gamepad1.right_bumper;
+            boolean liftUp = gamepad2.dpad_up;
+            boolean liftDown = gamepad2.dpad_down;
 
-            telemetry.addData("dpad left:",extensionFrontForward);
-            telemetry.addData("dpad right:",extensionFrontBackward);
+            //THE TEXT (FOR DEBUGGING PURPOSES)
+            telemetry.addLine("Driver 1 (Ground Movement):");
+
+            //Basic Controls (Forward, Backward, LeftMechano, RightMechano)
+            telemetry.addData("Y axis", "%.2f", yValue);
+            telemetry.addData("X axis",  "%.2f", xValue);
+            //Turning (Tank-style)
+            telemetry.addData("left_trigger button:",gamepad1.left_trigger);
+            telemetry.addData("right_trigger button:",gamepad1.right_trigger);
+
+            //Extension Arm (of the ramp)
             telemetry.addData("dpad up:",extensionBackForward);
             telemetry.addData("dpad down:",extensionBackBackward);
+            //The Ramp (Manual Controls)
+            telemetry.addData("dpad left:",extensionFrontForward);
+            telemetry.addData("dpad right:",extensionFrontBackward);
 
+            //The Ramp (Automatic, down/up switch)
             telemetry.addData("a button:",gamepad1.a);
+            //The Flappers (Reversing the rotation)
             telemetry.addData("b button:",gamepad1.b);
+            //The Flappers (On/Off)
             telemetry.addData("x button:",gamepad1.x);
-            telemetry.addData("left_bumper button:",gamepad1.left_bumper);
-            telemetry.addData("right_bumper button:",gamepad1.right_bumper);
-            telemetry.addData("left_stick button:",gamepad1.left_stick_button);
+
+            telemetry.addLine(" ");
+
+            telemetry.addLine("Driver 2 (Lift Movement):");
+
+            //The Lift
+            telemetry.addData("dpad up",gamepad1.dpad_up);
+            telemetry.addData("dpad down",gamepad1.dpad_down);
+            //The Throwing Arm
+            telemetry.addData("a",gamepad1.a);
+            telemetry.addData("b",gamepad1.b);
+
+            telemetry.update();
 
             //normalizare
             if (xValue > 1.0) xValue=1.0;
@@ -158,15 +185,19 @@ public class mecanum_diy extends LinearOpMode {
                 else
                 robot.lift.setPower(0);
 
-            if(gamepad1.left_stick_button == true)
+            if(gamepad2.a == true)
             {
-                robot.armMove();
-                sleep(500);
+                ArmPosition += Arm_speed;
             }
+            else if(gamepad2.b == true)
+            {
+                ArmPosition -= Arm_speed;
+            }
+            ArmPosition = Range.clip(ArmPosition,robot.Arm_down,robot.Arm_up);
+            robot.ArmL.setPosition(ArmPosition);
+            robot.ArmR.setPosition(ArmPosition);
             // Send telemetry message to signify robot running;
-            telemetry.addData("x",  "%.2f", xValue);
-            telemetry.addData("y", "%.2f", yValue);
-            telemetry.update();
+
 
         }
     }

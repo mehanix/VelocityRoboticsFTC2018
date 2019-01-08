@@ -76,8 +76,9 @@ public class HardwareMap
     public DcMotor lift = null;
 
     public Servo ArmL = null;
-    public final static double arm_down = 1.0;
-    public final static double arm_up = 0.0;
+    public Servo ArmR = null;
+    public final static double Arm_down = 0.0;
+    public final static double Arm_up = 1.0;
     public String armsState = "down";
     /* local OpMode members. */
     com.qualcomm.robotcore.hardware.HardwareMap hwMap           =  null;
@@ -102,7 +103,7 @@ public class HardwareMap
         extensionMotorBack = hwMap.get(DcMotor.class, "extension_motor_back");
         constantflappers = hwMap.get(DcMotor.class, "constant_flappers");
         lift = hwMap.get(DcMotor.class, "lift");
-        ArmL = hwMap.get(Servo.class, "ArmL");
+
 
         leftDrive.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
         leftDriveBack.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
@@ -116,6 +117,7 @@ public class HardwareMap
         lift.setDirection(DcMotor.Direction.REVERSE);
         lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+
         // Set all motors to zero power
         leftDrive.setPower(0);
         rightDrive.setPower(0);
@@ -125,7 +127,7 @@ public class HardwareMap
         extensionMotorBack.setPower(0);
         constantflappers.setPower(0);
         lift.setPower(0);
-        ArmL.setPosition(arm_down);
+
 
         // Set all motors to run without encoders.
         // May want to use RUN_USING_ENCODERS if encoders are installed.
@@ -137,8 +139,15 @@ public class HardwareMap
         extensionMotorBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         constantflappers.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         lift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        // Define and initialize ALL installed servos.
 
+
+        // Define and initialize ALL installed servos.
+        ArmL = hwMap.get(Servo.class, "ArmL");
+        ArmR = hwMap.get(Servo.class, "ArmR");
+        ArmL.setDirection(Servo.Direction.REVERSE);
+        ArmR.setDirection(Servo.Direction.FORWARD);
+        ArmL.setPosition(Arm_down);
+        ArmR.setPosition(Arm_down);
     }
 
     public void changeFlappersRotation(LinearOpMode opMode)
@@ -172,21 +181,7 @@ public class HardwareMap
             flappersPower = "off";
             constantflappers.setPower(0);
         }
-        opMode.sleep(100);
-    }
-
-    public void armMove()
-    {
-        if(armsState == "down")
-        {
-            ArmL.setPosition(arm_up);
-            armsState = "up";
-        }
-        else
-        {
-            ArmL.setPosition(arm_down);
-            armsState = "down";
-        }
+        opMode.sleep(200);
     }
 
     public void changeFrontMotorState(LinearOpMode opMode)
@@ -211,7 +206,7 @@ public class HardwareMap
             {
                 //daca e coborat, urca-l
                 extensionMotorFront.setPower(extensionMotorFront_backSpeed);
-                opMode.sleep(700);
+                opMode.sleep(900);
                 extensionMotorFront.setPower(0);
                 frontMotorCurrentState="up";
             }
