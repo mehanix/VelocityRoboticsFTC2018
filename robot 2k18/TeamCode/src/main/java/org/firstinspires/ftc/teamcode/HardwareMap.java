@@ -80,6 +80,21 @@ public class HardwareMap
     public final static double Arm_down = 0.0;
     public final static double Arm_up = 1.0;
     public String armsState = "down";
+
+
+    /***** VITEZE *****/
+
+    //viteza lift
+    double liftUpSpeed = 1;
+    double liftDownSpeed = -1;
+
+
+    //viteza miscare pe x/y ,mecanum drive, viteza rotatie
+    double xSpeed = 0.6;
+    double ySpeed = 0.5;
+    double rotateSpeed = 0.3;
+
+
     /* local OpMode members. */
     com.qualcomm.robotcore.hardware.HardwareMap hwMap           =  null;
     private ElapsedTime period  = new ElapsedTime();
@@ -150,6 +165,52 @@ public class HardwareMap
         ArmR.setPosition(Arm_down);
     }
 
+    public void mecanumDrive_Cartesian(double x, double y)
+    {
+        //verif input fata/spate
+        if(x!=0) {
+            double aux = x > 0 ? xSpeed : -xSpeed;
+            leftDrive.setPower(aux);
+            rightDrive.setPower(-aux);
+            leftDriveBack.setPower(-aux);
+            rightDriveBack.setPower(aux);
+        }
+
+        //verif input stanga/dreapta
+        else if(y!=0) {
+
+            double aux = y > 0 ? -ySpeed : ySpeed;
+            leftDrive.setPower(aux);
+            rightDrive.setPower(aux);
+            leftDriveBack.setPower(aux);
+            rightDriveBack.setPower(aux);
+        }
+
+        //daca niciuna, stop!!!!!
+        if(x==0 && y==0) {
+            leftDrive.setPower(0);
+            rightDrive.setPower(0);
+            leftDriveBack.setPower(0);
+            rightDriveBack.setPower(0);
+
+        }
+    }   //mecanumDrive_Cartesian
+
+
+    public void mecanumDrive_Rotate(double rotateLeft, double rotateRight)
+    {
+        //intai stanga dupa dreapta
+        double direction = rotateLeft > rotateRight ? 1 : -1 ;
+        leftDrive.setPower(rotateSpeed*-1*direction);
+        rightDrive.setPower(rotateSpeed*direction);
+        leftDriveBack.setPower(rotateSpeed*-1*direction);
+        rightDriveBack.setPower(rotateSpeed*direction);
+
+    }
+
+
+
+
     public void changeFlappersRotation(LinearOpMode opMode)
     {
         if(flappersState=="take")
@@ -214,5 +275,28 @@ public class HardwareMap
         }
 
     }
+
+
+    /*****Functii Autonom*****/
+
+
+    //Functie dat jos de pe carlig!
+    public void unlatch(LinearOpMode op) {
+
+        lift.setPower(liftDownSpeed);
+        op.sleep(1000);
+        lift.setPower(0);
+
+        /***TODO FACUT FUNCTIE mecanumDrive_Autonom !!!!!!!! cu encodere
+         *  Ca nu o sa mearga facut la ochi asta***/
+        mecanumDrive_Cartesian(1,0);
+        op.sleep(1000);
+        mecanumDrive_Cartesian(0,0);
+
+    }
+
+
+
+
  }
 

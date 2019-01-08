@@ -33,39 +33,27 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.Range;
 
-/**
- * This OpMode uses the common Pushbot hardware class to define the devices on the robot.
- * All device access is managed through the HardwarePushbot class.
- * The code is structured as a LinearOpMode
- *
- * This particular OpMode executes a POV Game style Teleop for a PushBot
- * In this mode the left stick moves the robot FWD and back, the Right stick turns left and right.
- * It raises and lowers the claw using the Gampad Y and A buttons respectively.
- * It also opens and closes the claws slowly using the left and right Bumper buttons.
- *
- * Use Android Studios to Copy this Class, and Paste it into your team's code folder with a new name.
- * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
- */
+/*********** TELEOP: MECANUM DRIVE ***********/
 
-@TeleOp(name="Pushbot: diy mecanum", group="Pushbot")
+@TeleOp(name="Pushbot: diy mecanum", group="Teleop")
 
 public class mecanum_diy extends LinearOpMode {
 
     /* Declare OpMode members. */
-    HardwareMap robot           = new HardwareMap();   // Use a Pushbot's hardware
+
+    /*********** INIT VALORI **********/
 
 
-    double xSpeed = 0.6;
-    double ySpeed = 0.5;
-    double rotateSpeed = 0.3;
+    HardwareMap robot  = new HardwareMap();   //HardwareMap al robotului nostru
+
+
+
     double extMotorFrontSpeedSlow = 0.3;
     double getExtMotorFrontSpeedFast = 0.6;
     double extMotorBackSpeed = 0.4;
     float forward = 1;
     float backward = -1;
 
-    double liftUpSpeed = 1;
-    double liftDownSpeed = -1;
 
     double ArmPosition = robot.Arm_down;
     final double Arm_speed = 1;
@@ -77,8 +65,10 @@ public class mecanum_diy extends LinearOpMode {
 
         robot.init(hardwareMap);
 
-        // Send telemetry message to signify robot waiting;
-        telemetry.addData("Say", "Hello Driver");    //
+
+
+
+        telemetry.addData("Say", "Hello Driver! Totul este initializat");
         telemetry.update();
 
         // Wait for the game to start (driver presses PLAY)
@@ -86,6 +76,8 @@ public class mecanum_diy extends LinearOpMode {
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
+
+            /******* Citit valori de pe gamepad ********/
 
             xValue = gamepad1.right_stick_x;
             yValue = gamepad1.left_stick_y;
@@ -97,12 +89,22 @@ public class mecanum_diy extends LinearOpMode {
             boolean liftUp = gamepad2.dpad_up;
             boolean liftDown = gamepad2.dpad_down;
 
+            double rotationLeft = gamepad1.left_trigger;
+            double rotationRight = gamepad1.right_trigger;
+
+
+            /********* TELEMETRY: mesaje debug (apar pe ecranul telefonului de driver) *********/
+
             //THE TEXT (FOR DEBUGGING PURPOSES)
+            /** DRIVER 1: miscare, rotatie, extins mana rampa automat/manual, control flappere **/
+
             telemetry.addLine("Driver 1 (Ground Movement):");
 
             //Basic Controls (Forward, Backward, LeftMechano, RightMechano)
             telemetry.addData("Y axis", "%.2f", yValue);
             telemetry.addData("X axis",  "%.2f", xValue);
+
+
             //Turning (Tank-style)
             telemetry.addData("left_trigger button:",gamepad1.left_trigger);
             telemetry.addData("right_trigger button:",gamepad1.right_trigger);
@@ -110,19 +112,25 @@ public class mecanum_diy extends LinearOpMode {
             //Extension Arm (of the ramp)
             telemetry.addData("dpad up:",extensionBackForward);
             telemetry.addData("dpad down:",extensionBackBackward);
+
+
             //The Ramp (Manual Controls)
             telemetry.addData("dpad left:",extensionFrontForward);
             telemetry.addData("dpad right:",extensionFrontBackward);
 
             //The Ramp (Automatic, down/up switch)
             telemetry.addData("a button:",gamepad1.a);
+
+
             //The Flappers (Reversing the rotation)
             telemetry.addData("b button:",gamepad1.b);
+
+
             //The Flappers (On/Off)
             telemetry.addData("x button:",gamepad1.x);
-
             telemetry.addLine(" ");
 
+            /**DRIVER 2: control lift, aruncare cuburi**/
             telemetry.addLine("Driver 2 (Lift Movement):");
 
             //The Lift
@@ -140,13 +148,16 @@ public class mecanum_diy extends LinearOpMode {
             if (xValue < -1.0) xValue=-1.0;
             if (xValue < -1.0) xValue=-1.0;
 
-            double rotationLeft = gamepad1.left_trigger;
-            double rotationRight = gamepad1.right_trigger;
 
+
+            /****** CONTROL MISCARE : 4 directii (fata, spate, stanga dreapta), rotatie - mecanum drive *******/
             if(rotationLeft==0 && rotationRight == 0)
-                mecanumDrive_Cartesian(xValue,yValue);
+                robot.mecanumDrive_Cartesian(xValue,yValue);
             else
-                mecanumDrive_Rotate(rotationLeft,rotationRight);
+                robot.mecanumDrive_Rotate(rotationLeft,rotationRight);
+
+
+
 
             if( extensionBackForward == false && extensionBackBackward == false) {
                 robot.extensionMotorBack.setPower(0);
@@ -177,11 +188,11 @@ public class mecanum_diy extends LinearOpMode {
             }
 
             if(liftUp == true)
-                robot.lift.setPower(liftUpSpeed);
+                robot.lift.setPower(robot.liftUpSpeed);
                 else
                 robot.lift.setPower(0);
             if(liftDown == true)
-                robot.lift.setPower(liftDownSpeed);
+                robot.lift.setPower(robot.liftDownSpeed);
                 else
                 robot.lift.setPower(0);
 
@@ -212,62 +223,7 @@ public class mecanum_diy extends LinearOpMode {
         robot.extensionMotorFront.setPower(speed*direction);
     }
 
-    public void mecanumDrive_Cartesian(double x, double y)
-    {
-        if(x!=0) {
-            double aux = x > 0 ? xSpeed : -xSpeed;
-            robot.leftDrive.setPower(aux);
-            robot.rightDrive.setPower(-aux);
-            robot.leftDriveBack.setPower(-aux);
-            robot.rightDriveBack.setPower(aux);
-        }
 
-        else if(y!=0) {
-
-            double aux = y > 0 ? -ySpeed : ySpeed;
-            robot.leftDrive.setPower(aux);
-            robot.rightDrive.setPower(aux);
-            robot.leftDriveBack.setPower(aux);
-            robot.rightDriveBack.setPower(aux);
-        }
-
-        if(x==0 && y==0) {
-            robot.leftDrive.setPower(0);
-            robot.rightDrive.setPower(0);
-            robot.leftDriveBack.setPower(0);
-            robot.rightDriveBack.setPower(0);
-
-        }
-
-
-        /*
-            double wheelSpeeds[] = new double[4];
-
-            wheelSpeeds[0] = x + y + rotation;
-            wheelSpeeds[1] = -x + y - rotation;
-            wheelSpeeds[2] = -x + y + rotation;
-            wheelSpeeds[3] = x + y - rotation;
-
-            normalize(wheelSpeeds);
-
-            robot.leftDrive.setPower(wheelSpeeds[0]);
-            robot.rightDrive.setPower(wheelSpeeds[1]);
-            robot.leftDriveBack.setPower(wheelSpeeds[2]);
-            robot.rightDriveBack.setPower(wheelSpeeds[3]);
-        */
-    }   //mecanumDrive_Cartesian
-
-
-    public void mecanumDrive_Rotate(double rotateLeft, double rotateRight)
-    {
-        //intai stanga dupa dreapta
-        double direction = rotateLeft > rotateRight ? 1 : -1 ;
-        robot.leftDrive.setPower(rotateSpeed*-1*direction);
-        robot.rightDrive.setPower(rotateSpeed*direction);
-        robot.leftDriveBack.setPower(rotateSpeed*-1*direction);
-        robot.rightDriveBack.setPower(rotateSpeed*direction);
-
-    }
     private void normalize(double[] wheelSpeeds)
     {
         double maxMagnitude = Math.abs(wheelSpeeds[0]);

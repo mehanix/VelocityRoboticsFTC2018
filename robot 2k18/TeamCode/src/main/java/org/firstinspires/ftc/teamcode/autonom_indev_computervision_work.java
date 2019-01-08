@@ -66,9 +66,9 @@ import java.util.List;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name="autonom TEST", group="Linear Opmode")
+@TeleOp(name="autonom TEST COMPUTERVISION", group="Autonom")
 
-public class autonom_indev extends LinearOpMode {
+public class autonom_indev_computervision_work extends LinearOpMode {
 
     HardwareMap robot = new HardwareMap();
 
