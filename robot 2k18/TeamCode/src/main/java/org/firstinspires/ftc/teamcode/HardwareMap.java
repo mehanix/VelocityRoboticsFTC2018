@@ -36,6 +36,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 /**
  * This is NOT an opmode.
  *
@@ -67,10 +69,10 @@ public class HardwareMap
     public float extensionMotorFront_forwardSpeed= 0.3f;
     public float extensionMotorFront_backSpeed= -0.5f;
 
-    public DcMotor constantflappers = null;
+    public DcMotor constantFlappers = null;
     public String flappersState = "take";
-    double flappers_speed_take= 0.5f;
-    double flappers_speed_give= -0.5f;
+    double constantFlappers_takeSpeed= 0.5f;
+    double constantFlappers_giveSpeed= -0.5f;
     String flappersPower = "off";
 
     public DcMotor lift = null;
@@ -79,8 +81,15 @@ public class HardwareMap
     public Servo ArmR = null;
     public final static double Arm_down = 0.0;
     public final static double Arm_up = 1.0;
-    public String armsState = "down";
 
+    /** 180grade=1.0 => 0.1=18grade; 0.05=9grade; **/
+    public Servo smallArm = null;
+    public final static double smallArm_unextended = 0.0;
+    public final static double smallArm_extended = 0.55;
+
+    public Servo liftBrake = null;
+    public final static double liftBrake_locked = 0.0;
+    public final static double liftBrake_unlocked = 0.6;
 
     /***** VITEZE *****/
 
@@ -90,9 +99,9 @@ public class HardwareMap
 
 
     //viteza miscare pe x/y ,mecanum drive, viteza rotatie
-    double xSpeed = 0.6;
-    double ySpeed = 0.5;
-    double rotateSpeed = 0.3;
+    public double xSpeed = 0.6;
+    public double ySpeed = 0.5;
+    public double rotateSpeed = 0.3;
 
 
     /* local OpMode members. */
@@ -116,7 +125,7 @@ public class HardwareMap
         rightDriveBack = hwMap.get(DcMotor.class, "right_drive_back");
         extensionMotorFront = hwMap.get(DcMotor.class, "extension_motor_front");
         extensionMotorBack = hwMap.get(DcMotor.class, "extension_motor_back");
-        constantflappers = hwMap.get(DcMotor.class, "constant_flappers");
+        constantFlappers = hwMap.get(DcMotor.class, "constant_flappers");
         lift = hwMap.get(DcMotor.class, "lift");
 
 
@@ -127,8 +136,8 @@ public class HardwareMap
         extensionMotorFront.setDirection(DcMotor.Direction.REVERSE);
         extensionMotorBack.setDirection(DcMotor.Direction.REVERSE);
         extensionMotorFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        constantflappers.setDirection(DcMotor.Direction.FORWARD);
-        constantflappers.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        constantFlappers.setDirection(DcMotor.Direction.FORWARD);
+        constantFlappers.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         lift.setDirection(DcMotor.Direction.REVERSE);
         lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
@@ -140,7 +149,7 @@ public class HardwareMap
         rightDriveBack.setPower(0);
         extensionMotorFront.setPower(0);
         extensionMotorBack.setPower(0);
-        constantflappers.setPower(0);
+        constantFlappers.setPower(0);
         lift.setPower(0);
 
 
@@ -152,7 +161,7 @@ public class HardwareMap
         rightDriveBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         extensionMotorFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         extensionMotorBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        constantflappers.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        constantFlappers.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         lift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
@@ -163,12 +172,21 @@ public class HardwareMap
         ArmR.setDirection(Servo.Direction.FORWARD);
         ArmL.setPosition(Arm_down);
         ArmR.setPosition(Arm_down);
+
+        smallArm = hwMap.get(Servo.class, "smallArm");
+        liftBrake = hwMap.get(Servo.class, "liftBrake");
+        smallArm.setDirection(Servo.Direction.FORWARD);  //ToTest -----------------------------
+        liftBrake.setDirection(Servo.Direction.FORWARD); //ToTest -----------------------------
+        smallArm.setPosition(smallArm_unextended);
+        liftBrake.setPosition(liftBrake_locked);
+
     }
 
     public void mecanumDrive_Cartesian(double x, double y)
     {
         //verif input fata/spate
         if(x!=0) {
+
             double aux = x > 0 ? xSpeed : -xSpeed;
             leftDrive.setPower(aux);
             rightDrive.setPower(-aux);
@@ -221,9 +239,9 @@ public class HardwareMap
         if(flappersPower == "on")
         {
             if(flappersState=="take")
-                constantflappers.setPower(flappers_speed_take);
+                constantFlappers.setPower(constantFlappers_takeSpeed);
             else
-                constantflappers.setPower(flappers_speed_give);
+                constantFlappers.setPower(constantFlappers_giveSpeed);
         }
     }
 
@@ -233,14 +251,14 @@ public class HardwareMap
         {
             flappersPower = "on";
             if(flappersState=="take")
-                constantflappers.setPower(flappers_speed_take);
+                constantFlappers.setPower(constantFlappers_takeSpeed);
                 else
-                constantflappers.setPower(flappers_speed_give);
+                constantFlappers.setPower(constantFlappers_giveSpeed);
         }
         else
         {
             flappersPower = "off";
-            constantflappers.setPower(0);
+            constantFlappers.setPower(0);
         }
         opMode.sleep(200);
     }
@@ -283,6 +301,8 @@ public class HardwareMap
     //Functie dat jos de pe carlig!
     public void unlatch(LinearOpMode op) {
 
+        liftBrake.setPosition(liftBrake_unlocked);
+        op.sleep(500);
         lift.setPower(liftDownSpeed);
         op.sleep(1000);
         lift.setPower(0);

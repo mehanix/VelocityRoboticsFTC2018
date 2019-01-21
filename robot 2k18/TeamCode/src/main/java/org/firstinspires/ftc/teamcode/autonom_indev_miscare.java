@@ -57,7 +57,6 @@ public class autonom_indev_miscare extends LinearOpMode {
 
 
 
-
         runtime.reset();
 
 

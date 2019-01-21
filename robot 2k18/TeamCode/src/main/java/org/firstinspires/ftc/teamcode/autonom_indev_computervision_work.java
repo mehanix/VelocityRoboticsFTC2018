@@ -111,7 +111,7 @@ public class autonom_indev_computervision_work extends LinearOpMode {
          * Once you've obtained a license key, copy the string from the Vuforia web site
          * and paste it in to your code onthe next line, between the double quotes.
          */
-        parameters.vuforiaLicenseKey = "ATsODcD/////AAAAAVw2lR...d45oGpdljdOh5LuFB9nDNfckoxb8COxKSFX";
+        parameters.vuforiaLicenseKey = "AdCqxpv/////AAAAmRYY0W12w0kCiohldJxGqHFZ2GletPTfhXtZhESwlq9pxkGaOfOwJah+6BGckYD4jJ5cmiwelBvWWK7mdEDxpkxkAFJmyxqYcUymQ8BMWBSIsoxbJIWwJ6XeYIRecso9jVV3iF1hgUPJ47uYiB/N7GuqM3DnD+uogQpHCMsy+KS6l0yJSGSTdlGpUu3lwxmVKpjc0Ox0biDe5VdmWNrJJ6DoIuy4TCzectZfidTbMJXwfigDK7dxNLicETcE0RrHgpSQ3F2YWn/ZOoyNZk2JmkPzu4EKPSHIWQfOiIU3KPHP9cjqh7x3NHuvvdyIYJjNb6xpzoA29YQK7l4zNRma0dQSBTyuiSdfkjH/6QSuqiBR";
 
         /*
          * We also indicate which camera on the RC that we wish to use.
@@ -286,7 +286,6 @@ public class autonom_indev_computervision_work extends LinearOpMode {
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
-
 
         /** Wait for the game to begin */
         telemetry.addData(">", "Press Play to start tracking");
