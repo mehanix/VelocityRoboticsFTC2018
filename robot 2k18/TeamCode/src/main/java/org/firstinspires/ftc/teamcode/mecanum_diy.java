@@ -50,19 +50,22 @@ public class mecanum_diy extends LinearOpMode {
 
 
     double extMotorFrontSpeedSlow = 0.3;
-    double getExtMotorFrontSpeedFast = 0.6;
+    double extMotorFrontSpeedFast = 0.6;
     double extMotorBackSpeed = 0.4;
     float forward = 1;
     float backward = -1;
 
 
-    double ArmPosition = robot.Arm_down;
-    final double armSpeed = 1;
+    double armPosition = robot.arm_down;
+    final double armSpeed = 1.0;
+    public String armState = "down";
 
     double smallArmPosition = robot.smallArm_unextended;
     final double smallArmSpeed = 0.05;
     double liftBrakePosition = robot.liftBrake_locked;
     final double liftBrakeSpeed = 0.05;
+
+    public String customSpeed = "off";
 
     @Override
     public void runOpMode() {
@@ -87,10 +90,6 @@ public class mecanum_diy extends LinearOpMode {
 
             xValue = gamepad1.right_stick_x;
             yValue = gamepad1.left_stick_y;
-            boolean extensionFrontForward = gamepad1.dpad_left;
-            boolean extensionFrontBackward = gamepad1.dpad_right;
-            boolean extensionBackForward = gamepad1.dpad_up;
-            boolean extensionBackBackward = gamepad1.dpad_down;
 
             boolean liftUp = gamepad2.dpad_up;
             boolean liftDown = gamepad2.dpad_down;
@@ -102,7 +101,7 @@ public class mecanum_diy extends LinearOpMode {
             /********* TELEMETRY: mesaje debug (apar pe ecranul telefonului de driver) *********/
 
             //THE TEXT (FOR DEBUGGING PURPOSES)
-            /** DRIVER 1: miscare, rotatie, extins mana rampa automat/manual, control flappere **/
+            /** DRIVER 1: Miscare, Brat Marker, Piedica Lift **/
 
             telemetry.addLine("Driver 1 (Ground Movement):");
 
@@ -116,13 +115,11 @@ public class mecanum_diy extends LinearOpMode {
             telemetry.addData("right_trigger button:",gamepad1.right_trigger);
 
             //Extension Arm (of the ramp)
-            telemetry.addData("dpad up:",extensionBackForward);
-            telemetry.addData("dpad down:",extensionBackBackward);
+            telemetry.addData("Extension Arm",gamepad1.left_stick_y);
 
 
             //The Ramp (Manual Controls)
-            telemetry.addData("dpad left:",extensionFrontForward);
-            telemetry.addData("dpad right:",extensionFrontBackward);
+            telemetry.addData("Ramp",gamepad1.right_stick_y);
 
             //The Ramp (Automatic, down/up switch)
             telemetry.addData("a button:",gamepad1.a);
@@ -165,33 +162,39 @@ public class mecanum_diy extends LinearOpMode {
             else
                 robot.mecanumDrive_Rotate(rotationLeft,rotationRight);
 
-
-
-
-            if( extensionBackForward == false && extensionBackBackward == false) {
-                robot.extensionMotorBack.setPower(0);
+            
+            if(gamepad2.left_stick_y > 0)
+            {
+                powerExtensionMotorBack(forward);
+            }    
+            else if (gamepad2.left_stick_y < 0) 
+            {    
+                powerExtensionMotorBack(backward);
             }
-            else {
-                if(extensionBackForward == true)
-                    powerExtensionMotorBack(forward);
-                else powerExtensionMotorBack(backward);
+            else
+            {
+                powerExtensionMotorBack(0);
             }
 
-            if( extensionFrontForward == false && extensionFrontBackward == false){
+            if(gamepad2.right_stick_y > 0)
+            {
+                powerExtensionMotorFront(forward,extMotorFrontSpeedSlow);
+            }
+            else if (gamepad2.right_stick_y < 0)
+            {
+                powerExtensionMotorFront(backward,extMotorFrontSpeedFast);
+            }
+            else
+            {
                 robot.extensionMotorFront.setPower(0);
             }
-            else {
-                if(extensionFrontForward == true)
-                    powerExtensionMotorFront(forward,extMotorFrontSpeedSlow);
-                else powerExtensionMotorFront(backward,getExtMotorFrontSpeedFast);
-            }
 
-            if(gamepad1.a == true)
+            if(gamepad2.a == true)
                 robot.changeFrontMotorState(this);
 
-            if(gamepad1.b == true)
+            if(gamepad2.x == true)
                 robot.changeFlappersRotation(this);
-            if(gamepad1.x == true)
+            if(gamepad2.y == true)
             {
                 robot.powerFlappers(this);
             }
@@ -205,49 +208,69 @@ public class mecanum_diy extends LinearOpMode {
                 else
                 robot.lift.setPower(0);
 
-            if(gamepad2.a == true)
+            if(gamepad2.b == true)
             {
-                ArmPosition += armSpeed;
+                if(armState == "down")
+                {
+                    armState = "up";
+                    armPosition += armSpeed;
+                }
+                else
+                {
+                    armState = "down";
+                    armPosition -= armSpeed;
+                }
+                this.sleep(200);
             }
-            else if(gamepad2.b == true)
+            armPosition = Range.clip(armPosition,robot.arm_down,robot.arm_up);
+            robot.armL.setPosition(armPosition);
+            robot.armR.setPosition(armPosition);
+
+            if (gamepad1.left_bumper == true)
             {
-                ArmPosition -= armSpeed;
+                robot.xSpeed = 1.0;      //Speeedoo Moodoo
+                robot.ySpeed = 0.9;
+                robot.rotateSpeed = 0.5;
             }
-            ArmPosition = Range.clip(ArmPosition,robot.Arm_down,robot.Arm_up);
-            robot.ArmL.setPosition(ArmPosition);
-            robot.ArmR.setPosition(ArmPosition);
-            
-            
+            else if(gamepad1.right_bumper == true)
+            {
+                robot.xSpeed = 0.3;      //Sneeakoo Moodoo
+                robot.ySpeed = 0.2;
+                robot.rotateSpeed = 0.1;
+            }
+            else
+            {
+                robot.xSpeed = 0.6;      //Normaloo Moodoo
+                robot.ySpeed = 0.5;
+                robot.rotateSpeed = 0.3;
+            }
+
+
+
             /** Emergency/Debug controls **/
 
             telemetry.addLine("-Debug Controls-");
             telemetry.addData("smallArm",robot.smallArm.getPosition());
             telemetry.addData("liftBrake",robot.liftBrake.getPosition());
 
+            if(gamepad1.dpad_left == true)
+            {
+                smallArmPosition += smallArmSpeed;
+            }
+            else if(gamepad1.dpad_right == true)
+            {
+                smallArmPosition -= smallArmSpeed;
+            }
 
-            if(gamepad2.left_bumper == true)
+            if(gamepad1.dpad_up == true)
             {
-                if(gamepad2.x == true)
-                {
-                    liftBrakePosition += liftBrakeSpeed;
-                }
-                else
-                {
-                    smallArmPosition += smallArmSpeed;
-                }
+                liftBrakePosition += liftBrakeSpeed;
             }
-            else if(gamepad2.right_bumper == true)
+            else if(gamepad1.dpad_down == true)
             {
-                if(gamepad2.x == true)
-                {
-                    liftBrakePosition -= liftBrakeSpeed;
-                }
-                else
-                {
-                    smallArmPosition -= smallArmSpeed;
-                }
+                liftBrakePosition -= liftBrakeSpeed;
             }
-            
+
             smallArmPosition = Range.clip(smallArmPosition,robot.smallArm_unextended,robot.smallArm_extended);
             robot.smallArm.setPosition(smallArmPosition);
 
@@ -255,7 +278,7 @@ public class mecanum_diy extends LinearOpMode {
             robot.liftBrake.setPosition(liftBrakePosition);
 
             /*** Very Experimental ***/
-            
+            /*
             while(gamepad2.y == true)
             {
                 robot.leftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -313,9 +336,10 @@ public class mecanum_diy extends LinearOpMode {
                         robot.leftDriveBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                         robot.rightDriveBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                     }
-                }
+1                }
 
             }
+            */
             
             // Send telemetry message to signify robot running;
 

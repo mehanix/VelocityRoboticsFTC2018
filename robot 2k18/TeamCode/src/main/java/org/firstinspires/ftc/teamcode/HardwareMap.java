@@ -77,25 +77,25 @@ public class HardwareMap
 
     public DcMotor lift = null;
 
-    public Servo ArmL = null;
-    public Servo ArmR = null;
-    public final static double Arm_down = 0.0;
-    public final static double Arm_up = 1.0;
+    public Servo armL = null;
+    public Servo armR = null;
+    public final static double arm_down = 0.0;
+    public final static double arm_up = 1.0;
 
     /** 180grade=1.0 => 0.1=18grade; 0.05=9grade; **/
     public Servo smallArm = null;
-    public final static double smallArm_unextended = 0.0;
-    public final static double smallArm_extended = 0.55;
+    public final static double smallArm_unextended = 0.37;
+    public final static double smallArm_extended = 0.8;
 
     public Servo liftBrake = null;
-    public final static double liftBrake_locked = 0.0;
-    public final static double liftBrake_unlocked = 0.6;
+    public final static double liftBrake_locked = 0.2;
+    public final static double liftBrake_unlocked = 0.5;
 
     /***** VITEZE *****/
 
     //viteza lift
-    double liftUpSpeed = 1;
-    double liftDownSpeed = -1;
+    double liftUpSpeed = 2;
+    double liftDownSpeed = -2;
 
 
     //viteza miscare pe x/y ,mecanum drive, viteza rotatie
@@ -166,16 +166,16 @@ public class HardwareMap
 
 
         // Define and initialize ALL installed servos.
-        ArmL = hwMap.get(Servo.class, "ArmL");
-        ArmR = hwMap.get(Servo.class, "ArmR");
-        ArmL.setDirection(Servo.Direction.REVERSE);
-        ArmR.setDirection(Servo.Direction.FORWARD);
-        ArmL.setPosition(Arm_down);
-        ArmR.setPosition(Arm_down);
+        armL = hwMap.get(Servo.class, "armL");
+        armR = hwMap.get(Servo.class, "armR");
+        armL.setDirection(Servo.Direction.REVERSE);
+        armR.setDirection(Servo.Direction.FORWARD);
+        armL.setPosition(arm_down);
+        armR.setPosition(arm_down);
 
         smallArm = hwMap.get(Servo.class, "smallArm");
         liftBrake = hwMap.get(Servo.class, "liftBrake");
-        smallArm.setDirection(Servo.Direction.FORWARD);  //ToTest -----------------------------
+        smallArm.setDirection(Servo.Direction.REVERSE);  //ToTest -----------------------------
         liftBrake.setDirection(Servo.Direction.FORWARD); //ToTest -----------------------------
         smallArm.setPosition(smallArm_unextended);
         liftBrake.setPosition(liftBrake_locked);
