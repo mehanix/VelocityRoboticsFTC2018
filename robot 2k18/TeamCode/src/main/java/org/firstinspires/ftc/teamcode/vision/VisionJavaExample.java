@@ -20,6 +20,7 @@ public class VisionJavaExample extends LinearOpMode{
 
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
         parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;// recommended camera direction
+
         parameters.vuforiaLicenseKey = "AdCqxpv/////AAAAmRYY0W12w0kCiohldJxGqHFZ2GletPTfhXtZhESwlq9pxkGaOfOwJah+6BGckYD4jJ5cmiwelBvWWK7mdEDxpkxkAFJmyxqYcUymQ8BMWBSIsoxbJIWwJ6XeYIRecso9jVV3iF1hgUPJ47uYiB/N7GuqM3DnD+uogQpHCMsy+KS6l0yJSGSTdlGpUu3lwxmVKpjc0Ox0biDe5VdmWNrJJ6DoIuy4TCzectZfidTbMJXwfigDK7dxNLicETcE0RrHgpSQ3F2YWn/ZOoyNZk2JmkPzu4EKPSHIWQfOiIU3KPHP9cjqh7x3NHuvvdyIYJjNb6xpzoA29YQK7l4zNRma0dQSBTyuiSdfkjH/6QSuqiBR";
         //din vazut doar 2, dat seama ce e al 3lea :)
         vision = new MasterVision(parameters, hardwareMap, true, MasterVision.TFLiteAlgorithm.INFER_LEFT);

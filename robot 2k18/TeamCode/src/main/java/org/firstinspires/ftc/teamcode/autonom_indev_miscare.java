@@ -39,33 +39,15 @@ import org.firstinspires.ftc.teamcode.HardwareMap;
 import org.firstinspires.ftc.teamcode.vision.MasterVision;
 import org.firstinspires.ftc.teamcode.vision.SampleRandomizedPositions;
 
+
 /**
- * This file illustrates the concept of driving a path based on encoder counts.
- * It uses the common Pushbot hardware class to define the drive on the robot.
- * The code is structured as a LinearOpMode
- *
- * The code REQUIRES that you DO have encoders on the wheels,
- *   otherwise you would use: PushbotAutoDriveByTime;
- *
- *  This code ALSO requires that the drive Motors have been configured such that a positive
- *  power command moves them forwards, and causes the encoders to count UP.
- *
- *   The desired path in this example is:
- *   - Drive forward for 48 inches
- *   - Spin right for 12 Inches
- *   - Drive Backwards for 24 inches
- *   - Stop and close the claw.
- *
- *  The code is written using a method called: encoderDrive(speed, leftInches, rightInches, timeoutS)
- *  that performs the actual movement.
- *  This methods assumes that each movement is relative to the last stopping place.
- *  There are other ways to perform encoder based moves, but this method is probably the simplest.
- *  This code uses the RUN_TO_POSITION mode to enable the Motor controllers to generate the run profile
- *
- * Use Android Studios to Copy this Class, and Paste it into your team's code folder with a new name.
- * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
+ * Asta este
+ * Autonomul
+ * Varianta in care robotul este orientat spre crater
+ * Valabil si pt stanga
  */
 
+//AUTONOM ROBOT FATA SPRE CRATER !!!!!!!!!!!!!!!!!!
 @Autonomous(name="autonom_indev_miscare", group="Pushbot")
 public class autonom_indev_miscare extends LinearOpMode {
 
@@ -89,8 +71,12 @@ public class autonom_indev_miscare extends LinearOpMode {
     static final long     strafe_time = 500;
     static final long     ramp_time = 245;
     static final long     arm_time = 600;
-    static final long     vision_time = 1500;
+    static final long     vision_time = 2000;
     static final long     debug_time = 2000;
+
+    int MINERAL_DRIVE_TIME=1500;
+    int ROTATE_TIME=1300;
+
 
     @Override
     public void runOpMode() {
@@ -127,6 +113,9 @@ public class autonom_indev_miscare extends LinearOpMode {
                 robot.rightDrive.getCurrentPosition());
         telemetry.update();
 
+        vision.init();
+        vision.enable();
+
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
 
@@ -138,34 +127,49 @@ public class autonom_indev_miscare extends LinearOpMode {
         //encoderDrive(TURN_SPEED,   12, -12, 4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
         //encoderDrive(DRIVE_SPEED, -24, -24, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout
 
+
+
         //-------------THE PROGRAM ITSELF-------------
         //encoderDrive(TURN_SPEED,   12, -12, 4.0);
+
         robot.extensionMotorBack.setPower(1);
         sleep(arm_time);
         robot.extensionMotorBack.setPower(0);
+
+
         //Brat Rampa Extinde
         robot.lift.setPower(-1);
         sleep(time_per_motor);
         robot.liftBrake.setPosition(robot.liftBrake_unlocked);
         sleep(time_per_motor);
+
+
         //Scoate piedica
         robot.lift.setPower(0.5); //0.35
         sleep(lift_time);
         robot.lift.setPower(0);
         sleep(time_per_motor);
+
+
         //Coboara robotul
         robot.smallArm.setPosition(robot.smallArm_extended);
         sleep(time_per_motor);
+
+
         //Prinde Marker-ul(de sub Lander)
         robot.mecanumDrive_Cartesian(0.3d,0);
         sleep(strafe_time);
         robot.mecanumDrive_Cartesian(0,0);
         sleep(time_per_motor);
+
+
         //Iese de pe carlig
         robot.lift.setPower(-0.5); //0.35
         sleep(lift_time);
         robot.lift.setPower(0);
         sleep(time_per_motor);
+
+
         //Coboara Liftul
         robot.extensionMotorFront.setPower(robot.extensionMotorFront_forwardSpeed);
         sleep(ramp_time);
@@ -176,17 +180,173 @@ public class autonom_indev_miscare extends LinearOpMode {
         robot.extensionMotorFront.setPower(robot.extensionMotorFront_backSpeed);
         sleep(ramp_time);
         robot.extensionMotorFront.setPower(0);
+
+
         //Brat Rampa Contracta
-        encoderDrive(TURN_SPEED,   3.3, -3.3, 4.0);
+      //  encoderDrive(TURN_SPEED,   3.3, -3.3, 4.0);
+
+
+        robot.mecanumDrive_Cartesian(-0.3d,0);
+        sleep(strafe_time);
+        robot.mecanumDrive_Cartesian(0,0);
+        sleep(time_per_motor);
+
+
+
         //Se Intoarce sa vada Vision
-        vision.init();
-        vision.enable();
-        sleep(vision_time);
-        vision.disable();
+
+
         goldPosition = vision.getTfLite().getLastKnownSampleOrder();
         telemetry.addData("Pozitia este: ", goldPosition);
-        sleep(debug_time);
+      //  sleep(debug_time);
+
+
         //Vazut Vision
+
+        ///cod pus de nicoletaaaaa
+
+        /**********daramat bila corecta, switch n stuff**********/
+
+
+        //Mers jumate de distanta in fata
+        encoderDrive(DRIVE_SPEED+0.4,20,20,5);
+
+        switch (goldPosition){ // using for things in the autonomous program
+            case LEFT:
+            {
+
+                robot.mecanumDrive_Cartesian(-DRIVE_SPEED,0);
+                sleep(1500);
+                robot.mecanumDrive_Cartesian(0,0);
+                encoderDrive(DRIVE_SPEED,10,10,3);
+                encoderDrive(DRIVE_SPEED,-18,-18, 3);
+
+
+               /*****  versiunea veche
+                * telemetry.addLine("going to the left");
+                robot.mecanumDrive_Rotate(1d,0);
+                sleep(ROTATE_TIME);
+                robot.mecanumDrive_Rotate(0,0);
+                sleep(250);
+
+                robot.mecanumDrive_Cartesian(-1d,0);
+                sleep(MINERAL_DRIVE_TIME);
+                robot.mecanumDrive_Cartesian(0,0);
+                break; ****/
+            }
+            case CENTER: {
+
+               encoderDrive(DRIVE_SPEED+0.4,13,13,3);
+               encoderDrive(DRIVE_SPEED+0.4,-18,-18,3);
+                break;
+
+
+              /**  telemetry.addLine("going straight");
+                robot.mecanumDrive_Cartesian(-1d,0);
+                sleep(MINERAL_DRIVE_TIME-250);
+                robot.mecanumDrive_Cartesian(0,0);
+                break;
+               */
+            }
+            case RIGHT:
+            {
+                robot.mecanumDrive_Cartesian(DRIVE_SPEED,0);
+                sleep(1500);
+                robot.mecanumDrive_Cartesian(0,0);
+                encoderDrive(DRIVE_SPEED,10,10,3);
+                encoderDrive(DRIVE_SPEED,-18,-18,3);
+
+                break;
+
+                /****
+                telemetry.addLine("going to the right");
+                robot.mecanumDrive_Rotate(0,1d);
+                sleep(ROTATE_TIME);
+                robot.mecanumDrive_Rotate(0,0);
+                sleep(250);
+                robot.mecanumDrive_Cartesian(-1d,0);
+                sleep(MINERAL_DRIVE_TIME);
+                robot.mecanumDrive_Cartesian(0,0);
+                 break;
+             ***/
+            }
+
+            case UNKNOWN:
+                encoderDrive(TURN_SPEED,3,-3,3);
+
+                /***telemetry.addLine("staying put"); **/
+                break;
+
+        }
+        vision.disable();
+
+        //ROTIT LA DREAPTA
+
+        encoderDrive(TURN_SPEED,18,-18,3);
+
+        //MERS SPRE PERETE
+
+        encoderDrive(DRIVE_SPEED + 0.2,42,42,7);
+
+
+
+        //ROTIT CA SA MEARGA CU FATA
+
+        encoderDrive(TURN_SPEED,11,-11,3);
+
+
+
+
+        //DAT IN PERETE PUTIN
+
+        robot.mecanumDrive_Cartesian(-DRIVE_SPEED,0);
+        sleep(1200);
+        robot.mecanumDrive_Cartesian(0,0);
+
+        //robot.mecanumDrive_Cartesian(0.8,0);
+        //sleep(1000);
+        //robot.mecanumDrive_Cartesian(0,0);
+
+        //MERS CU SPATELE,LASAT MARKER
+
+        encoderDrive(DRIVE_SPEED+0.4,42,42,7);
+
+        robot.extensionMotorFront.setPower(robot.extensionMotorFront_forwardSpeed+0.2);
+        sleep(1000);
+        robot.extensionMotorFront.setPower(-0.6);
+        //sleep(1000);
+
+
+
+
+        //MERS FATA, PARCAT
+
+        encoderDrive(DRIVE_SPEED+0.4,-30,-30,15);
+
+        encoderDrive(TURN_SPEED+0.3,43,-43,15);
+
+
+        encoderDrive(DRIVE_SPEED+0.4,24,24,15);
+        robot.extensionMotorFront.setPower(robot.extensionMotorFront_forwardSpeed+0.2);
+        sleep(1000);
+        robot.extensionMotorFront.setPower(0);
+
+
+
+        sleep(300000);
+
+
+
+
+
+
+        /**** END DARAMAT BILA******/
+
+        /**** MERS STANGA SPRE PERETE, CU SPATELE******/
+
+
+
+
 
         //encoderDrive(DRIVE_SPEED,  3,  3, 3.0);
         //robot.mecanumDrive_Cartesian(-0.3d,0);
