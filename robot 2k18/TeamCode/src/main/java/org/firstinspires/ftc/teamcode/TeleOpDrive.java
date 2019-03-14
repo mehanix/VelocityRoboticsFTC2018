@@ -1,44 +1,16 @@
-/* Copyright (c) 2017 FIRST. All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted (subject to the limitations in the disclaimer below) provided that
- * the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice, this list
- * of conditions and the following disclaimer.
- *
- * Redistributions in binary form must reproduce the above copyright notice, this
- * list of conditions and the following disclaimer in the documentation and/or
- * other materials provided with the distribution.
- *
- * Neither the name of FIRST nor the names of its contributors may be used to endorse or
- * promote products derived from this software without specific prior written permission.
- *
- * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
- * LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
- * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
 
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 /*********** TELEOP: MECANUM DRIVE ***********/
 
-@TeleOp(name="Pushbot: diy mecanum", group="Teleop")
+@TeleOp(name="Teleop Robot", group="Teleop")
 
-public class mecanum_diy extends LinearOpMode {
+public class TeleOpDrive extends LinearOpMode {
 
     /* Declare OpMode members. */
 
@@ -71,11 +43,19 @@ public class mecanum_diy extends LinearOpMode {
             xValue = gamepad1.right_stick_x;
             yValue = gamepad1.left_stick_y;
 
-            boolean liftUp = gamepad2.dpad_up;
-            boolean liftDown = gamepad2.dpad_down;
+            //boolean liftUp = gamepad2.dpad_up;
+            //boolean liftDown = gamepad2.dpad_down;
 
             double rotationLeft = gamepad1.left_trigger;
             double rotationRight = gamepad1.right_trigger;
+
+
+            double armFront = gamepad2.right_trigger;
+            double armBack = gamepad2.left_trigger;
+
+            boolean flapperOn = gamepad2.a;
+            boolean flapperRev = gamepad2.b;
+            boolean flapperOff = gamepad2.x;
 
 
             /********* TELEMETRY: mesaje debug (apar pe ecranul telefonului de driver) *********/
@@ -84,7 +64,6 @@ public class mecanum_diy extends LinearOpMode {
             /** DRIVER 1: Miscare, Brat Marker, Piedica Lift **/
 
             telemetry.addLine("LOL");
-
             telemetry.addLine("Driver 1 (Ground Movement):");
 
             //Basic Controls (Forward, Backward, LeftMechano, RightMechano)
@@ -127,35 +106,6 @@ public class mecanum_diy extends LinearOpMode {
             else
                 robot.mecanumDrive_Rotate(rotationLeft, rotationRight);
 
-            if(gamepad1.dpad_up == true)
-            {
-                robot.armLeft.setPower(-1);
-                robot.armRight.setPower(-1);
-            }
-            else
-            {
-                robot.armLeft.setPower(0);
-                robot.armRight.setPower(0);
-            }
-
-            if(gamepad1.dpad_down == true)
-            {
-                robot.armLeft.setPower(1);
-                robot.armRight.setPower(1);
-            }
-            else
-            {
-                robot.armLeft.setPower(0);
-                robot.armRight.setPower(0);
-            }
-
-            if(gamepad1.a == true)
-            {
-                robot.armLeft.setPower(1);
-                robot.armRight.setPower(1);
-                sleep(2000);
-            }
-
 
             if (gamepad1.left_bumper == true) {
                 robot.xSpeed = 1.0;      //Speeedoo Moodoo
@@ -172,7 +122,44 @@ public class mecanum_diy extends LinearOpMode {
             }
 
 
+            /*****  arm forward/backward  ****/
+
+
+            if (armFront > 0)
+            {
+                robot.armMotor.setPower(robot.ARM_MOTOR_SPEED);
+            }
+            else
+            {
+                robot.armMotor.setPower(0);
+
+            }
+            if (armBack > 0)
+            {
+                robot.armMotor.setPower(-robot.ARM_MOTOR_SPEED);
+            }
+            else
+            {
+                robot.armMotor.setPower(0);
+
+            }
+
+
+            if(flapperOn == true)
+                robot.flapperServo.setPower(robot.FLAPPER_SPEED);
+            if(flapperOff == true)
+                robot.flapperServo.setPower(0);
+            if(flapperRev == true)
+            {
+                if(robot.flapperServo.getDirection()== CRServo.Direction.FORWARD)
+                    robot.flapperServo.setDirection(CRServo.Direction.REVERSE);
+                else
+                    robot.flapperServo.setDirection(CRServo.Direction.FORWARD);
+            }
+
+
             /** Emergency/Debug controls **/
+
 
             telemetry.addLine("-Debug Controls-");
 
