@@ -2,28 +2,37 @@ package org.firstinspires.ftc.teamcode.vision;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.configuration.WebcamConfiguration;
+
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.teamcode.HardwareMap;
+import org.firstinspires.ftc.teamcode.vision.MasterVision;
 
 @TeleOp(name="VisionJavaExample", group="Autonom")
 public class VisionJavaExample extends LinearOpMode{
     HardwareMap robot = new HardwareMap();
-
     MasterVision vision;
-    SampleRandomizedPositions goldPosition;
+    VuforiaLocalizer vuforia;
 
+    SampleRandomizedPositions goldPosition;
     int MINERAL_DRIVE_TIME=1500;
     int ROTATE_TIME=1300;
     @Override
     public void runOpMode() throws InterruptedException {
         robot.init(hardwareMap); /****** IMPORTANT LOL *****/
 
+
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
         parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;// recommended camera direction
 
         parameters.vuforiaLicenseKey = "AdCqxpv/////AAAAmRYY0W12w0kCiohldJxGqHFZ2GletPTfhXtZhESwlq9pxkGaOfOwJah+6BGckYD4jJ5cmiwelBvWWK7mdEDxpkxkAFJmyxqYcUymQ8BMWBSIsoxbJIWwJ6XeYIRecso9jVV3iF1hgUPJ47uYiB/N7GuqM3DnD+uogQpHCMsy+KS6l0yJSGSTdlGpUu3lwxmVKpjc0Ox0biDe5VdmWNrJJ6DoIuy4TCzectZfidTbMJXwfigDK7dxNLicETcE0RrHgpSQ3F2YWn/ZOoyNZk2JmkPzu4EKPSHIWQfOiIU3KPHP9cjqh7x3NHuvvdyIYJjNb6xpzoA29YQK7l4zNRma0dQSBTyuiSdfkjH/6QSuqiBR";
         //din vazut doar 2, dat seama ce e al 3lea :)
-        vision = new MasterVision(parameters, hardwareMap, true, MasterVision.TFLiteAlgorithm.INFER_LEFT);
+        parameters.cameraName = hardwareMap.get(WebcamName.class, "Webcam 1");
+
+        this.vuforia = ClassFactory.getInstance().createVuforia(parameters);
+        vision = new MasterVision(parameters, hardwareMap, false, MasterVision.TFLiteAlgorithm.INFER_LEFT);
         vision.init();// enables the camera overlay. this will take a couple of seconds
         vision.enable();// enables the tracking algorithms. this might also take a little time
 
@@ -36,7 +45,7 @@ public class VisionJavaExample extends LinearOpMode{
             telemetry.addData("goldPosition was", goldPosition);// giving feedback
 
 
-
+/*
             switch (goldPosition){ // using for things in the autonomous program
                 case LEFT:
                 {
@@ -74,7 +83,7 @@ public class VisionJavaExample extends LinearOpMode{
                     telemetry.addLine("staying put");
                     break;
             }
-
+*/
             telemetry.update();
 
 

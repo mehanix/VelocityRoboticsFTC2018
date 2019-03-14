@@ -27,10 +27,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+
+/**********     HARDWARE MAP NOU COMPLET AS OF 14.3.2019 ***********/
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -56,46 +59,27 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
  */
 public class HardwareMap
 {
+    /***********  Declarare hardware ***************/
+
     /* Public OpMode members. */
     public DcMotor  leftDrive   = null;
     public DcMotor  rightDrive  = null;
     public DcMotor  leftDriveBack = null;
     public DcMotor  rightDriveBack = null;
 
-    public DcMotor  extensionMotorFront =null;
-    public DcMotor  extensionMotorBack =null;
-    public String frontMotorCurrentState = "up";
-    public boolean changeInProgress=false;
-    public float extensionMotorFront_forwardSpeed= 0.3f;
-    public float extensionMotorFront_backSpeed= -0.5f;
+    public DcMotor foldingMotor0 = null;
+    public DcMotor foldingMotor1 = null;
 
-    public DcMotor constantFlappers = null;
-    public String flappersState = "take";
-    double constantFlappers_takeSpeed= 0.5f;
-    double constantFlappers_giveSpeed= -0.5f;
-    String flappersPower = "off";
+    public DcMotor armMotor = null;
+    public DcMotor piedicaMotor= null;
 
-    public DcMotor lift = null;
-
-    public Servo armL = null;
-    public Servo armR = null;
-    public final static double arm_down = 0.0;
-    public final static double arm_up = 1.0;
-
-    /** 180grade=1.0 => 0.1=18grade; 0.05=9grade; **/
-    public Servo smallArm = null;
-    public final static double smallArm_unextended = 0.37;
-    public final static double smallArm_extended = 0.8;
-
-    public Servo liftBrake = null;
-    public final static double liftBrake_locked = 0.2;
-    public final static double liftBrake_unlocked = 0.5;
+    public CRServo flapperServo = null;
 
     /***** VITEZE *****/
 
     //viteza lift
-    double liftUpSpeed = 2;
-    double liftDownSpeed = -2;
+    double liftUpSpeed = 1;
+    double liftDownSpeed = -1;
 
 
     //viteza miscare pe x/y ,mecanum drive, viteza rotatie
@@ -123,35 +107,27 @@ public class HardwareMap
         rightDrive = hwMap.get(DcMotor.class, "right_drive");
         leftDriveBack  = hwMap.get(DcMotor.class, "left_drive_back");
         rightDriveBack = hwMap.get(DcMotor.class, "right_drive_back");
-        extensionMotorFront = hwMap.get(DcMotor.class, "extension_motor_front");
-        extensionMotorBack = hwMap.get(DcMotor.class, "extension_motor_back");
-        constantFlappers = hwMap.get(DcMotor.class, "constant_flappers");
-        lift = hwMap.get(DcMotor.class, "lift");
-
+        foldingMotor0 = hwMap.get(DcMotor.class, "folding_motor_0");
+        foldingMotor1 = hwMap.get(DcMotor.class, "folding_motor_1");
+        armMotor = hwMap.get(DcMotor.class, "arm_motor");
+        piedicaMotor = hwMap.get(DcMotor.class, "piedica_motor");
+        flapperServo = hwMap.get(CRServo.class,"flapper_servo");
 
         leftDrive.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
         leftDriveBack.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
         rightDrive.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors
         rightDriveBack.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors
-        extensionMotorFront.setDirection(DcMotor.Direction.REVERSE);
-        extensionMotorBack.setDirection(DcMotor.Direction.REVERSE);
-        extensionMotorFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        constantFlappers.setDirection(DcMotor.Direction.FORWARD);
-        constantFlappers.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        lift.setDirection(DcMotor.Direction.REVERSE);
-        lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
+        foldingMotor0.setDirection(DcMotor.Direction.REVERSE);// set to REVERSE if using AndyMark motors
 
         // Set all motors to zero power
         leftDrive.setPower(0);
         rightDrive.setPower(0);
         leftDriveBack.setPower(0);
         rightDriveBack.setPower(0);
-        extensionMotorFront.setPower(0);
-        extensionMotorBack.setPower(0);
-        constantFlappers.setPower(0);
-        lift.setPower(0);
-
+        foldingMotor0.setPower(0);
+        foldingMotor1.setPower(0);
+        armMotor.setPower(0);
+        piedicaMotor.setPower(0);
 
         // Set all motors to run without encoders.
         // May want to use RUN_USING_ENCODERS if encoders are installed.
@@ -159,27 +135,16 @@ public class HardwareMap
         rightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         leftDriveBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightDriveBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        extensionMotorFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        extensionMotorBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        constantFlappers.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        lift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        foldingMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        foldingMotor0.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        armMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        piedicaMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
-        // Define and initialize ALL installed servos.
-        armL = hwMap.get(Servo.class, "armL");
-        armR = hwMap.get(Servo.class, "armR");
-        armL.setDirection(Servo.Direction.REVERSE);
-        armR.setDirection(Servo.Direction.FORWARD);
-        armL.setPosition(arm_down);
-        armR.setPosition(arm_down);
-
-        smallArm = hwMap.get(Servo.class, "smallArm");
-        liftBrake = hwMap.get(Servo.class, "liftBrake");
-        smallArm.setDirection(Servo.Direction.REVERSE);  //ToTest -----------------------------
-        liftBrake.setDirection(Servo.Direction.FORWARD); //ToTest -----------------------------
-        smallArm.setPosition(smallArm_unextended);
-        liftBrake.setPosition(liftBrake_locked);
-
+        foldingMotor0.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        foldingMotor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        piedicaMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     public void mecanumDrive_Cartesian(double x, double y)
@@ -226,97 +191,9 @@ public class HardwareMap
 
     }
 
-
-
-
-    public void changeFlappersRotation(LinearOpMode opMode)
-    {
-        if(flappersState=="take")
-            flappersState="give";
-            else
-            flappersState="take";
-        opMode.sleep(200);
-        if(flappersPower == "on")
-        {
-            if(flappersState=="take")
-                constantFlappers.setPower(constantFlappers_takeSpeed);
-            else
-                constantFlappers.setPower(constantFlappers_giveSpeed);
-        }
-    }
-
-    public void powerFlappers(LinearOpMode opMode)
-    {
-        if(flappersPower == "off")
-        {
-            flappersPower = "on";
-            if(flappersState=="take")
-                constantFlappers.setPower(constantFlappers_takeSpeed);
-                else
-                constantFlappers.setPower(constantFlappers_giveSpeed);
-        }
-        else
-        {
-            flappersPower = "off";
-            constantFlappers.setPower(0);
-        }
-        opMode.sleep(200);
-    }
-
-    public void changeFrontMotorState(LinearOpMode opMode)
-    {
-        //daca nu se schimba deja state-ul motorului
-        if(changeInProgress==false)
-        {
-            //anunta ca e in schimbare
-            changeInProgress=true;
-
-            //daca ii urcat, coboara-l
-            if(frontMotorCurrentState=="up")
-            {
-                extensionMotorFront.setPower(extensionMotorFront_forwardSpeed);
-                opMode.sleep(700);
-                extensionMotorFront.setPower(0);
-                frontMotorCurrentState="down";
-
-
-            }
-            else
-            {
-                //daca e coborat, urca-l
-                extensionMotorFront.setPower(extensionMotorFront_backSpeed);
-                opMode.sleep(900);
-                extensionMotorFront.setPower(0);
-                frontMotorCurrentState="up";
-            }
-            changeInProgress = false;
-        }
-
-    }
-
-
     /*****Functii Autonom*****/
-
-
-    //Functie dat jos de pe carlig!
-    public void unlatch(LinearOpMode op) {
-
-        liftBrake.setPosition(liftBrake_unlocked);
-        op.sleep(500);
-        lift.setPower(liftDownSpeed);
-        op.sleep(1000);
-        lift.setPower(0);
-
-        /***TODO FACUT FUNCTIE mecanumDrive_Autonom !!!!!!!! cu encodere
-         *  Ca nu o sa mearga facut la ochi asta***/
-        mecanumDrive_Cartesian(1,0);
-        op.sleep(1000);
-        mecanumDrive_Cartesian(0,0);
-
-    }
 
 
 
 
  }
-

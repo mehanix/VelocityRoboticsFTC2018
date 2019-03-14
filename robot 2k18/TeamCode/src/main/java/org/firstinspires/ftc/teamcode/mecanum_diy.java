@@ -45,39 +45,19 @@ public class mecanum_diy extends LinearOpMode {
     /*********** INIT VALORI **********/
 
 
-    HardwareMap robot  = new HardwareMap();   //HardwareMap al robotului nostru
+    HardwareMap robot = new HardwareMap();   //HardwareMap al robotului nostru
 
 
-
-    double extMotorFrontSpeedSlow = 0.3;
-    double extMotorFrontSpeedFast = 0.6;
-    double extMotorBackSpeed = 0.4;
-    float forward = 1;
-    float backward = -1;
-
-
-    double armPosition = robot.arm_down;
-    final double armSpeed = 1.0;
-    public String armState = "down";
-
-    double smallArmPosition = robot.smallArm_unextended;
-    final double smallArmSpeed = 0.05;
-    double liftBrakePosition = robot.liftBrake_locked;
-    final double liftBrakeSpeed = 0.05;
 
     public String customSpeed = "off";
 
     @Override
     public void runOpMode() {
 
-        double xValue,yValue;
-
+        double xValue, yValue;
         robot.init(hardwareMap);
 
-
-
-
-        telemetry.addData("Say", "Hello Driver! Totul este initializat");
+        telemetry.addData("Say", "Hello Driver! Totul este initializat ");
         telemetry.update();
 
         // Wait for the game to start (driver presses PLAY)
@@ -103,281 +83,123 @@ public class mecanum_diy extends LinearOpMode {
             //THE TEXT (FOR DEBUGGING PURPOSES)
             /** DRIVER 1: Miscare, Brat Marker, Piedica Lift **/
 
+            telemetry.addLine("LOL");
+
             telemetry.addLine("Driver 1 (Ground Movement):");
 
             //Basic Controls (Forward, Backward, LeftMechano, RightMechano)
             telemetry.addData("Y axis", "%.2f", yValue);
-            telemetry.addData("X axis",  "%.2f", xValue);
+            telemetry.addData("X axis", "%.2f", xValue);
 
 
             //Turning (Tank-style)
-            telemetry.addData("left_trigger button:",gamepad1.left_trigger);
-            telemetry.addData("right_trigger button:",gamepad1.right_trigger);
+            telemetry.addData("left_trigger button:", gamepad1.left_trigger);
+            telemetry.addData("right_trigger button:", gamepad1.right_trigger);
 
             //Extension Arm (of the ramp)
-            telemetry.addData("Extension Arm",gamepad1.left_stick_y);
+            telemetry.addData("Extension Arm", gamepad1.left_stick_y);
 
 
             //The Ramp (Manual Controls)
-            telemetry.addData("Ramp",gamepad1.right_stick_y);
-
-            //The Ramp (Automatic, down/up switch)
-            telemetry.addData("a button:",gamepad1.a);
-            telemetry.addData("ramp state",robot.frontMotorCurrentState);
-
-
-            //The Flappers (Reversing the rotation)
-            telemetry.addData("b button:",gamepad1.b);
-            telemetry.addData("flappers state",robot.flappersState);
-
-            //The Flappers (On/Off)
-            telemetry.addData("x button:",gamepad1.x);
-            telemetry.addData("flappers power",robot.flappersPower);
-
-            telemetry.addLine(" ");
-
-            /**DRIVER 2: control lift, aruncare cuburi, debugging/deUrgenta**/
+            telemetry.addData("Ramp", gamepad1.right_stick_y);
+        /**DRIVER 2: control lift, aruncare cuburi, debugging/deUrgenta**/
             telemetry.addLine("Driver 2 (Lift Movement):");
 
             //The Lift
-            telemetry.addData("dpad up",gamepad2.dpad_up);
-            telemetry.addData("dpad down",gamepad2.dpad_down);
+            telemetry.addData("dpad up", gamepad2.dpad_up);
+            telemetry.addData("dpad down", gamepad2.dpad_down);
             //The Throwing Arm
-            telemetry.addData("a",gamepad2.a);
-            telemetry.addData("b",gamepad2.b);
+            telemetry.addData("a", gamepad2.a);
+            telemetry.addData("b", gamepad2.b);
 
             telemetry.update();
 
             //normalizare
-            if (xValue > 1.0) xValue=1.0;
-            if (yValue > 1.0) yValue=1.0;
-            if (xValue < -1.0) xValue=-1.0;
-            if (xValue < -1.0) xValue=-1.0;
-
+            if (xValue > 1.0) xValue = 1.0;
+            if (yValue > 1.0) yValue = 1.0;
+            if (xValue < -1.0) xValue = -1.0;
+            if (xValue < -1.0) xValue = -1.0;
 
 
             /****** CONTROL MISCARE : 4 directii (fata, spate, stanga dreapta), rotatie - mecanum drive *******/
-            if(rotationLeft==0 && rotationRight == 0)
-                robot.mecanumDrive_Cartesian(xValue,yValue);
+            if (rotationLeft == 0 && rotationRight == 0)
+                robot.mecanumDrive_Cartesian(xValue, yValue);
             else
-                robot.mecanumDrive_Rotate(rotationLeft,rotationRight);
+                robot.mecanumDrive_Rotate(rotationLeft, rotationRight);
 
-            
-            if(gamepad2.left_stick_y > 0)
+            if(gamepad1.dpad_up == true)
             {
-                powerExtensionMotorBack(forward);
-            }    
-            else if (gamepad2.left_stick_y < 0) 
-            {    
-                powerExtensionMotorBack(backward);
+                robot.armLeft.setPower(-1);
+                robot.armRight.setPower(-1);
             }
             else
             {
-                powerExtensionMotorBack(0);
+                robot.armLeft.setPower(0);
+                robot.armRight.setPower(0);
             }
 
-            if(gamepad2.right_stick_y > 0)
+            if(gamepad1.dpad_down == true)
             {
-                powerExtensionMotorFront(forward,extMotorFrontSpeedSlow);
-            }
-            else if (gamepad2.right_stick_y < 0)
-            {
-                powerExtensionMotorFront(backward,extMotorFrontSpeedFast);
+                robot.armLeft.setPower(1);
+                robot.armRight.setPower(1);
             }
             else
             {
-                robot.extensionMotorFront.setPower(0);
+                robot.armLeft.setPower(0);
+                robot.armRight.setPower(0);
             }
 
-            if(gamepad2.a == true)
-                robot.changeFrontMotorState(this);
-
-            if(gamepad2.x == true)
-                robot.changeFlappersRotation(this);
-            if(gamepad2.y == true)
+            if(gamepad1.a == true)
             {
-                robot.powerFlappers(this);
+                robot.armLeft.setPower(1);
+                robot.armRight.setPower(1);
+                sleep(2000);
             }
 
-            if(liftUp == true)
-                robot.lift.setPower(robot.liftUpSpeed);
-                else
-                robot.lift.setPower(0);
-            if(liftDown == true)
-                robot.lift.setPower(robot.liftDownSpeed);
-                else
-                robot.lift.setPower(0);
 
-            if(gamepad2.b == true)
-            {
-                if(armState == "down")
-                {
-                    armState = "up";
-                    armPosition += armSpeed;
-                }
-                else
-                {
-                    armState = "down";
-                    armPosition -= armSpeed;
-                }
-                this.sleep(200);
-            }
-            armPosition = Range.clip(armPosition,robot.arm_down,robot.arm_up);
-            robot.armL.setPosition(armPosition);
-            robot.armR.setPosition(armPosition);
-
-            if (gamepad1.left_bumper == true)
-            {
+            if (gamepad1.left_bumper == true) {
                 robot.xSpeed = 1.0;      //Speeedoo Moodoo
                 robot.ySpeed = 0.9;
                 robot.rotateSpeed = 0.5;
-            }
-            else if(gamepad1.right_bumper == true)
-            {
+            } else if (gamepad1.right_bumper == true) {
                 robot.xSpeed = 0.3;      //Sneeakoo Moodoo
                 robot.ySpeed = 0.2;
                 robot.rotateSpeed = 0.1;
-            }
-            else
-            {
+            } else {
                 robot.xSpeed = 0.6;      //Normaloo Moodoo
                 robot.ySpeed = 0.5;
                 robot.rotateSpeed = 0.3;
             }
 
 
-
             /** Emergency/Debug controls **/
 
             telemetry.addLine("-Debug Controls-");
-            telemetry.addData("smallArm",robot.smallArm.getPosition());
-            telemetry.addData("liftBrake",robot.liftBrake.getPosition());
 
-            if(gamepad1.dpad_left == true)
-            {
-                smallArmPosition += smallArmSpeed;
-            }
-            else if(gamepad1.dpad_right == true)
-            {
-                smallArmPosition -= smallArmSpeed;
-            }
 
-            if(gamepad1.dpad_up == true)
-            {
-                liftBrakePosition += liftBrakeSpeed;
-            }
-            else if(gamepad1.dpad_down == true)
-            {
-                liftBrakePosition -= liftBrakeSpeed;
-            }
-
-            smallArmPosition = Range.clip(smallArmPosition,robot.smallArm_unextended,robot.smallArm_extended);
-            robot.smallArm.setPosition(smallArmPosition);
-
-            liftBrakePosition = Range.clip(liftBrakePosition,robot.liftBrake_locked,robot.liftBrake_unlocked);
-            robot.liftBrake.setPosition(liftBrakePosition);
-
-            /*** Very Experimental ***/
-            /*
-            while(gamepad2.y == true)
-            {
-                robot.leftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                robot.rightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                robot.leftDriveBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                robot.rightDriveBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                robot.leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                robot.rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                robot.leftDriveBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                robot.rightDriveBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                telemetry.addLine("--EncoderStuff--");
-                telemetry.addData("leftDrive direction",robot.leftDrive.getDirection());
-                telemetry.addData("leftDrive direction",robot.leftDrive.getCurrentPosition());
-
-                if(gamepad2.right_stick_button == true)
-                {
-                    {
-                        robot.leftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                        robot.rightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                        robot.leftDriveBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                        robot.rightDriveBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-                        robot.leftDrive.setTargetPosition(robot.leftDrive.getCurrentPosition()+2000);
-                        robot.leftDriveBack.setTargetPosition(robot.leftDrive.getCurrentPosition()+2000);
-                        robot.rightDrive.setTargetPosition(robot.leftDrive.getCurrentPosition()+2000);
-                        robot.rightDriveBack.setTargetPosition(robot.leftDrive.getCurrentPosition()+2000);
-
-                        robot.leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        robot.rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        robot.leftDriveBack.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        robot.rightDriveBack.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-                        robot.leftDrive.setPower(0.5);
-                        robot.leftDrive.setPower(0.5);
-                        robot.leftDrive.setPower(0.5);
-                        robot.leftDrive.setPower(0.5);
-
-                        while(robot.leftDrive.isBusy()||robot.leftDriveBack.isBusy()||robot.rightDrive.isBusy()||robot.rightDriveBack.isBusy())
-                        {
-                            //nothingness
-                        }
-
-                        robot.leftDrive.setPower(0);
-                        robot.leftDrive.setPower(0);
-                        robot.leftDrive.setPower(0);
-                        robot.leftDrive.setPower(0);
-
-                        robot.leftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                        robot.rightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                        robot.leftDriveBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                        robot.rightDriveBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-                        robot.leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                        robot.rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                        robot.leftDriveBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                        robot.rightDriveBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                    }
-1                }
-
-            }
-            */
-            
             // Send telemetry message to signify robot running;
 
 
         }
     }
 
-    public void powerExtensionMotorBack(float direction)
-    {
-        robot.extensionMotorBack.setPower(extMotorBackSpeed*direction);
-    }
 
-    public void powerExtensionMotorFront(float direction, double speed)
-    {
-        robot.extensionMotorFront.setPower(speed*direction);
-    }
-
-
-    private void normalize(double[] wheelSpeeds)
-    {
+    private void normalize(double[] wheelSpeeds) {
         double maxMagnitude = Math.abs(wheelSpeeds[0]);
 
-        for (int i = 1; i < wheelSpeeds.length; i++)
-        {
+        for (int i = 1; i < wheelSpeeds.length; i++) {
             double magnitude = Math.abs(wheelSpeeds[i]);
 
-            if (magnitude > maxMagnitude)
-            {
+            if (magnitude > maxMagnitude) {
                 maxMagnitude = magnitude;
             }
         }
 
-        if (maxMagnitude > 1.0)
-        {
-            for (int i = 0; i < wheelSpeeds.length; i++)
-            {
+        if (maxMagnitude > 1.0) {
+            for (int i = 0; i < wheelSpeeds.length; i++) {
                 wheelSpeeds[i] /= maxMagnitude;
             }
         }
     }   //normalize
+
 }
